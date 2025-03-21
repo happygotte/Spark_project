@@ -2,5 +2,6 @@ logs/
 **.idea
 __pycache__/
 package-lock.yml
-**.txt
+spark_project_env/
+comands_bash.txt
 **.png
