@@ -1,0 +1,6 @@
+logs/
+**.idea
+__pycache__/
+package-lock.yml
+**.txt
+**.png
