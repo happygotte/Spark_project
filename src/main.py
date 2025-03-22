@@ -32,7 +32,7 @@ def main():
         logger.info("scv_transactions files are read")
 
         # Transform
-        df_transactions_filtered = df_transactions.transform(T.filter_date('2023-08-01', '2023-08-31'))
+        df_transactions_filtered = df_transactions.T.filter_date('2023-08-01', '2023-08-31')
         df_joined = df_transactions_filtered.T.join_df([df_transactions_filtered, df_customers, df_transactions])
 
         columns = [
@@ -45,14 +45,14 @@ def main():
 
         df_transformed = (df_joined
                           .transform(T.filter_age(23))
-                          .transform(T.aggregate)
+                          .transform(T.aggregate_purchases)
                           .transform(T.select_columns(columns))
                           )
 
         # Writing
-
-
-
+        path_to_write = "path-to-our-data"
+        writer = W.DataWriter(W.FileSystemWriteStrategy(spark, path_to_write, "parquet"))
+        writer.write(df_transformed)
 
     except FileNotFoundError as e:
         logger.error(f'File not found: {e}')

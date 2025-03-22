@@ -16,7 +16,7 @@ def filter_age(df: DataFrame, age: int) -> DataFrame:
             .F.otherwise("R"))
     return df
 
-def aggregate(df: DataFrame) -> DataFrame:
+def aggregate_purchases(df: DataFrame) -> DataFrame:
     df = (df.groupBy("customer_id", "customer_group_by_age")
             .agg(sum("price").alias("transaction_amount"),                              # Сумма всех покупок
             F.countDistinct("article_id").alias("number_of_articles"),                  # Количество покупок

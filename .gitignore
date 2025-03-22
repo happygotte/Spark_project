@@ -3,5 +3,6 @@ logs/
 __pycache__/
 package-lock.yml
 spark_project_env/
+data/
 comands_bash.txt
 **.png
