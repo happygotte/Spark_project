@@ -1,8 +1,8 @@
 ## Структура проекта
-- `src/main.py`: Главный скрипт, который запускает `reading.py`, `transform.py` и `loading.py`.
-- `src/reading.py`: Скрипт для чтения данных.
-- `src/transform.py`: Скрипт для обработки данных.
-- `src/loading.py`: Скрипт для загрузки данных.
+- `src/main.py`: Главный скрипт, который запускает `Reading.py`, `Transform.py` и `Writing.py`.
+- `src/Reading.py`: Скрипт для чтения данных.
+- `src/Transform.py`: Скрипт для обработки данных.
+- `src/Writing.py`: Скрипт для загрузки данных.
 - `docs`: полезные статьи
 
 ## Запуск проекта
@@ -19,4 +19,4 @@ docker-compose -f docker-compose-standalone.yml up
 docker-compose -f docker-compose-cluster.yml up
 ```
 
-### 3. Структура джобы
+## Структура джобы
