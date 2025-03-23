@@ -1,0 +1,46 @@
+services:
+  spark-master:
+    build: .
+    container_name: spark-master
+    env_file:
+      - variables.env  # Загружаем переменные окружения
+    ports:
+      - "8080:8080"  # Веб-интерфейс Master
+      - "7077:7077"  # Порт для подключения Worker
+    volumes:
+      - ./src:/app
+    command: >
+      /opt/bitnami/spark/bin/spark-class org.apache.spark.deploy.master.Master
+      --host spark-master
+      --port 7077
+      --webui-port 8080
+
+  spark-worker:
+    build: .
+    container_name: spark-worker
+    env_file:
+      - variables.env  # Загружаем переменные окружения
+    depends_on:
+      - spark-master
+    ports:
+      - "4040:8081"  # Веб-интерфейс Worker
+    volumes:
+      - ./src:/app
+    command: >
+      /opt/bitnami/spark/bin/spark-class org.apache.spark.deploy.worker.Worker
+      spark://spark-master:7077
+
+  spark-app:
+    build: .
+    container_name: spark-app
+    depends_on:
+      - spark-master
+      - spark-worker
+    env_file:
+      - variables.env
+    volumes:
+      - ./src:/app
+    command: >
+      spark-submit
+      --master spark://spark-master:7077
+      /app/main.py
