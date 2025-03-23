@@ -4,8 +4,6 @@ import Reading as R
 import Transform as T
 import Writing as W
 
-logger.info("Starting main.py")
-
 
 def main():
     spark = (SparkSession
@@ -20,7 +18,7 @@ def main():
         path_to_customers = "data/customers.csv"
         path_to_transactions = "data/transactions_train.csv"
 
-        # Read
+        # READING
         scv_articles = R.DataReader(R.CSVReadStrategy(spark, path_to_articles))
         df_articles = scv_articles.read()
         logger.info("scv_articles files are read")
@@ -33,7 +31,7 @@ def main():
         df_transactions = scv_transactions.read()
         logger.info("scv_transactions files are read")
 
-        # Transform
+        # TRANSFORM
         df_transactions_filtered = T.filter_date(df_transactions,'2020-09-01', '2023-09-30')
         df_joined = T.join_df([df_transactions_filtered, df_customers, df_articles])
         logger.info("df transformed")
@@ -41,7 +39,6 @@ def main():
         columns = [
             "customer_id",
             "customer_group_by_age",
-            "age",
             "transaction_amount",
             "max_price",
             "number_of_articles",
@@ -52,10 +49,10 @@ def main():
                           .transform(T.aggregate_purchases)
                           .transform(T.select_columns(columns))
                           )
-        df_transformed.show()
+        #df_transformed.show()
         logger.info("df_transformed created")
 
-        # Writing
+        # WRITING
         path_to_write = "data/df_transformed"
         writer = W.DataWriter(W.FileSystemWriteStrategy(spark, path_to_write, "csv"))
         writer.write(df_transformed)
