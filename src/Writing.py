@@ -13,7 +13,7 @@ class FileSystemWriteStrategy(WriteStrategy):
         self.format = format
         self.mode = mode
     def write_data(self, df: DataFrame):
-        df.write.format(self.format).mode(self.mode).save(self.path)
+        df.write.format(self.format).mode(self.mode).option('header', 'true').save(self.path)
 
 class DataWriter:
     def __init__(self, write_strategy: WriteStrategy):

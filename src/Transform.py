@@ -1,29 +1,41 @@
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame
 
+
 def filter_date(df: DataFrame, date_start: str, date_end: str) -> DataFrame:
     df = df.withColumn("date", F.to_date("t_dat", "yyyy-MM-dd"))
     return df.filter((F.col("date") >= date_start) & (F.col("date") <= date_end))
 
-def join_df(dfs: list) -> DataFrame:
-    return dfs[0].join(dfs[1], dfs[0]["customer_id"] == dfs[1]["customer_id"], "inner") \
-                .join(dfs[2], dfs[0]["article_id"] == dfs[2]["article_id"], "inner")
 
-def filter_age(df: DataFrame, age: int) -> DataFrame:
+def join_df(dfs: list) -> DataFrame:
+    return (dfs[0].join(dfs[1], dfs[0]["customer_id"] == dfs[1]["customer_id"], "inner")
+            .join(dfs[2], dfs[0]["article_id"] == dfs[2]["article_id"], "inner")
+            .drop(dfs[0]["customer_id"], dfs[0]["article_id"]))
+
+
+def filter_age(df: DataFrame, age_1=23, age_2=59) -> DataFrame:
+    # если мне надо передать другие возраста, то тоже надо делать функцию-обёртку
     df = df.withColumn("customer_group_by_age",
-            F.when(F.col("age") < age, "S")
-            .F.when((F.col("age") >= age) & (F.col("age") <= 59), "A")
-            .F.otherwise("R"))
+                       F.when(df["age"] < age_1, "S")
+                       .when((df["age"] >= age_1) & (df["age"] <= age_2), "A")
+                       .otherwise("R"))
     return df
+
 
 def aggregate_purchases(df: DataFrame) -> DataFrame:
     df = (df.groupBy("customer_id", "customer_group_by_age")
-            .agg(sum("price").alias("transaction_amount"),                              # Сумма всех покупок
-            F.countDistinct("article_id").alias("number_of_articles"),                  # Количество покупок
-            F.countDistinct("product_group_name").alias("number_of_product_groups"),    # Количество групп товаров
-            max("price").alias("max_price"))                                            # Самая дорогая покупка
+          .agg(F.sum("price").alias("transaction_amount"),                  # Сумма всех покупок
+               F.countDistinct("article_id").alias("number_of_articles"),   # Количество покупок
+               F.countDistinct("product_group_name").alias("number_of_product_groups"),  # Количество групп товаров
+               F.max("price").alias("max_price"))                           # Самая дорогая покупка
           )
     return df
 
-def select_columns(df: DataFrame, columns: list) -> DataFrame:
-    return df.select(columns).distinct()
+
+# Метод transform в PySpark принимает функцию, которая должна иметь только один аргумент — DataFrame.
+# Функция-обёртка принимает список колонок и возвращает внутреннюю функцию, которая уже имеет в качестве аргумента только df
+def select_columns(columns: list):
+    def inner(df: DataFrame):
+        return df.select(columns).distinct()
+
+    return inner
